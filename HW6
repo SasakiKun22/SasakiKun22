@@ -1,1 +1,144 @@
 HW6
+# -*- coding: utf-8 -*-
+
+import images
+
+
+def pulisci_file(file_dati):
+    
+    lista = []
+    with open(file_dati, 'r', encoding = 'utf_8') as f:
+        file = f.readlines()
+            
+    for stringa in file:
+        stringa_nuova = ''
+        for carattere in stringa[:]:
+            if carattere.isdigit():
+                stringa_nuova += carattere
+            elif carattere == ',':
+                stringa_nuova += carattere
+            
+        lista.append(stringa_nuova[:-1])
+    return lista
+
+
+
+def crea_quartiere(lista_valori):
+    
+    quartiere = [[] for _ in range(len(lista_valori))]
+    i = 0
+    for stringa in lista_valori:
+        stringa_split = stringa.split(',')
+        
+        for numero in range(0, len(stringa_split), 5):
+            quartiere[i].append(list((int(stringa_split[numero]), int(stringa_split[numero+1]),
+                                (int(stringa_split[numero+2]),int(stringa_split[numero+3]),
+                                 int(stringa_split[numero+4])))))
+        i += 1
+    return quartiere
+
+
+
+def altezza_sfondo(lista_quartiere, spaziatura):
+    n_righe = len(lista_quartiere)
+    altezza_palazzi = 0
+    
+    for riga in lista_quartiere:
+        if len(riga) == 1:
+            altezza_palazzi += riga[0][1]
+        else:
+            altezza_palazzi += max([palazzo[1] for palazzo in riga])
+    
+    altezza = spaziatura*2 + spaziatura*(n_righe - 1) + altezza_palazzi
+    
+    return altezza
+
+
+
+def larghezza_sfondo(lista_quartiere, spaziatura):
+    len_riga = [len(riga) for riga in lista_quartiere]
+    somma_larghezze = [sum([palazzo[0] for palazzo in riga]) for riga in lista_quartiere]
+    larghezze_simili = []
+    
+    for lunghezza in range(len(len_riga)):
+        if len_riga[lunghezza] == max(len_riga):
+            larghezze_simili.append(somma_larghezze[lunghezza])
+        else:
+            pass
+
+    larghezza = spaziatura*2 + spaziatura*(max(len_riga) - 1) + max(larghezze_simili)
+    
+    return larghezza
+
+
+
+def disegna_rettangolo(im, y_centro, x, palazzo):
+    altezza = len(im)
+    larghezza = len(im[0])
+    for altezza_q in range((y_centro-(palazzo[1]//2)), (y_centro+(palazzo[1]//2))):
+        for larghezza_q in range(x, x + palazzo[0]):
+            if  0 <= larghezza_q < larghezza and 0 <= altezza_q < altezza:
+                im[altezza_q][larghezza_q] = palazzo[2]
+            
+            
+            
+def disegna_rettangolo_solo(im, y_centro, x, palazzo):
+    altezza = len(im)
+    larghezza = len(im[0])
+    for altezza_q in range(y_centro, y_centro+palazzo[1]):
+        for larghezza_q in range((x-(palazzo[0]//2)), (x+(palazzo[0]//2))):
+            if  0 <= larghezza_q < larghezza and 0 <= altezza_q < altezza:
+                im[altezza_q][larghezza_q] = palazzo[2]
+            
+    
+def mappa(file_png, lista_quartiere, spaziatura, larghezza, altezza):
+    
+    im = [[(0,0,0)]* larghezza for i in range(altezza)]
+    y_centro =  0
+    for riga in lista_quartiere:
+        lunghezza_riga = len(riga)
+       
+        if lunghezza_riga != 1:
+            
+            h_max = max([palazzo[1] for palazzo in riga])
+            
+            y_centro += (spaziatura + h_max//2)
+            
+            x = spaziatura
+            
+            spazio = int((larghezza - spaziatura * 2 - sum([palazzo[0] for palazzo in riga]))/(len(riga)-1))
+            
+            for palazzo in riga:
+                disegna_rettangolo(im, y_centro, x, palazzo)
+                x += (spazio+palazzo[0])
+            
+            y_centro += h_max//2
+        
+        elif lunghezza_riga == 1:
+            
+            y_centro += spaziatura
+            
+            x = larghezza//2
+            
+            for palazzo in riga:
+                disegna_rettangolo_solo(im, y_centro, x, palazzo)
+            
+                y_centro += palazzo[1]
+    
+    images.save(im, file_png)
+    
+    
+    
+def ex(file_dati, file_png, spaziatura):
+    
+    lista_valori = pulisci_file(file_dati)
+    
+    lista_quartiere = crea_quartiere(lista_valori)
+    
+    altezza = altezza_sfondo(lista_quartiere, spaziatura)
+    
+    larghezza = larghezza_sfondo(lista_quartiere, spaziatura)
+    
+    mappa(file_png, lista_quartiere, spaziatura, larghezza, altezza)
+    
+    return larghezza, altezza
