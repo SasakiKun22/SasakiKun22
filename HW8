@@ -1,0 +1,139 @@
+def pulitore_diff(lista, D):  
+    lista_n = []
+    
+    for riga in lista:
+        i = 0
+        while i < len(riga) - D - 1:
+            if i%D != 0 or i == 0:
+                if len(set([riga[i], riga[i+1], riga[i+D], riga[i+D+1]])) == 4:
+                    i += 1
+                else:
+                    break
+            else:
+                i += 1
+        else:
+            lista_n.append(riga)
+    return lista_n          
+
+
+def pulitore_cross(lista, D):
+    lista_n = []
+    
+    for riga in lista:
+        if len(set(riga)) == 2:
+            i = 0
+            while i < len(riga) - D - 1:
+                if i%D != 0 or i == 0:
+                    if riga[i] == riga[i+1] or riga[i] == riga[i+D] or riga[i] != riga[i+D+1]:
+                        break
+                    else:
+                        i += 1
+                else:
+                    i += 1
+            else:
+                lista_n.append(riga)
+    return lista_n
+
+
+def preparatore_hrect(lista_p):
+    lista_r = []
+    for riga in lista_p:
+        lista_t = []
+        for sottolista in riga:
+            lista_t += sottolista
+            
+        lista_r.append(lista_t)
+    return lista_r
+
+
+def pulitore_hrect(lista):
+    lista_n = []
+    for riga in lista:
+        i = 0
+        while i < len(riga)-1:
+            if riga[i][1] == riga[i+1][1]:
+                break
+            else:
+                i += 1
+        else:
+            lista_n.append(riga)
+    return lista_n
+
+
+def aumentare(colors, D):
+    
+    return [[colore]*D for colore in colors]
+
+
+
+def pulitore_vrect(lista, D):
+    lista_n = []
+    for riga in lista:
+        i = 0
+        while i < len(riga)-1:
+            if riga[i] == riga[i+1]:
+                break
+            else:
+                i += 1
+        else:
+            lista_n.append(riga)
+    return [riga*D for riga in lista_n]
+
+
+def raggruppatore(lista, D):
+    
+    lista_n = []
+    
+    for sottolista in lista:
+        slista = [tuple(sottolista[i:i+D]) for i in range(0, len(sottolista), D)]
+        lista_n.append(tuple(slista))
+    return lista_n
+
+
+
+def null(colors, D):
+
+    if D == 1:
+        return [[colore] for colore in colors]
+    
+    else:
+        lista_p = []
+        ricorsione = null(colors, D-1)  
+        for i in colors:
+            for permutazione in ricorsione:
+                lista_p.append([i]+permutazione)   
+        return lista_p
+        
+
+
+def ex(colors, D, img_properties):
+    
+    Area = D*D
+    
+    if img_properties == '':
+        lista = null(colors, Area)
+        lista_f = raggruppatore(lista, D)
+        
+    elif img_properties == 'pattern_vrect_':
+        lista = null(colors, D)
+        lista_p = pulitore_vrect(lista, D)
+        lista_f = raggruppatore(lista_p, D)
+        
+    elif img_properties == 'pattern_hrect_':
+        colors_au = aumentare(colors, D)
+        lista = null(colors_au, D)
+        lista_p = pulitore_hrect(lista)
+        lista_prep = preparatore_hrect(lista_p)
+        lista_f = raggruppatore(lista_prep, D)
+        
+    elif img_properties == 'pattern_cross_':
+        lista = null(colors, Area)
+        lista_p = pulitore_cross(lista, D)
+        lista_f = raggruppatore(lista, D)
+        
+    elif img_properties == 'pattern_diff_':
+        lista = null(colors, Area)
+        lista_p = pulitore_diff(lista, D)
+        lista_f = raggruppatore(lista, D)
+        
+    return lista_f
