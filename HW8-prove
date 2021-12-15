@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+def null(colors, D, l):
+    
+    if len(l) == D:
+        return l
+    
+    
+    lista = []
+    for i in colors:
+        p = null(colors, D, l + [i])
+        for n in p:
+            lista.append(n)
+    return lista
+        
+
+
+
+def v_rect(colors, D, l):
+    
+    if len(l) == D*D:
+        return l
+    
+    
+    lista = []
+    for i in colors:
+        if len(l) == 0:
+            p = v_rect(colors, D, l + [i])
+            for n in p:
+                lista.append(i)
+        else:
+            p = v_rect(colors, D, l + [i])
+            for n in p:
+                if l[-1] != n:
+                    lista.append(n)
+        
+            
+    return lista
+
+
+
+
+def raggruppatore(lista, D):
+    
+    lista_ap = [tuple(lista[i:i+D]) for i in range(0, len(lista), D)]
+    
+    
+    return [tuple(lista_ap[i:i+D]) for i in range(0, len(lista_ap), D)]
